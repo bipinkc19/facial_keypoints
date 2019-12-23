@@ -2,28 +2,27 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from model import get_model
 training = pd.read_csv('./data/training.csv')
 training = training.dropna()
 
 training['Image'] = training['Image'].apply(lambda x: np.fromstring(x, dtype=int, sep=' ').reshape((96,96)))
 
-def get_image_and_dots(df, index):
-    image = plt.imshow(df['Image'][index],cmap='gray')
-    l = []
-    for i in range(1,31,2):
-        l.append(plt.plot(df.loc[index][i-1], df.loc[index][i], 'ro'))
-        
-    return image
-fig = plt.figure(figsize=(8, 8))
-fig.subplots_adjust(
-    left=0, right=1, bottom=0, top=1, hspace=0.05, wspace=0.05)
+X_train = np.asarray([training['Image']], dtype=np.uint8).reshape(training.shape[0], 96, 96, 1).to_numpy()
+y_train = training.drop(['Image'], axis=1).to_numpy()
 
-for i in range(16):
-    ax = fig.add_subplot(4, 4, i + 1, xticks=[], yticks=[])
-    get_image_and_dots(training, i)
+test = pd.read_csv('./data/training.csv')
+test = test.dropna()
 
-plt.show()
+test['Image'] = test['Image'].apply(lambda x: np.fromstring(x, dtype=int, sep=' ').reshape((96,96)))
 
-X = np.asarray([training['Image']], dtype=np.uint8).reshape(training.shape[0],96,96,1)
-y = training.drop(['Image'], axis=1)
+X_test = np.asarray([test['Image']], dtype=np.uint8).reshape(test.shape[0], 96, 96, 1).to_numpy()
+y_test = test.drop(['Image'], axis=1).to_numpy()
 
+model = get_model()
+
+model.compile(optimizer='Adam', 
+              loss='mse', 
+              metrics=['mae'])
+
+model.fit(X_train, y_train, epochs=500)
