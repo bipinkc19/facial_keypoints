@@ -87,7 +87,7 @@ for image, label in zip(X_train, y_train):
         Y_augmented.append(new_label.flatten())
     X_augmented.append(image.flatten())
     Y_augmented.append(label.flatten())
-    break
+    
 transformed_df = pd.DataFrame(Y_augmented, columns=training.columns.difference(['Image']))
 transformed_df['Image'] = X_augmented
 transformed_df['Image'] = [' '.join(list(map(str, i))) for i in transformed_df['Image']]
