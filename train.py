@@ -5,21 +5,12 @@ from tensorflow import keras
 
 from model import get_model
 
-training = pd.read_csv('./data/training.csv')
+training = pd.read_csv('./data_set.csv').drop(columns=['Unnamed: 0'])
 training = training.dropna()
+training['Image'] = [list(map(lambda x: float(x), training['Image'][0].split())) for i in range(len(training))]
 
-training['Image'] = training['Image'].apply(lambda x: np.fromstring(x, dtype=int, sep=' ').reshape((96,96)))
-
-X_train = np.asarray([training['Image']], dtype=np.uint8).reshape(training.shape[0], 96, 96, 1)
+X_train = np.asarray([training['Image']], dtype=np.float32).reshape(training.shape[0], 96, 96, 1)
 y_train = training.drop(['Image'], axis=1).to_numpy()
-
-test = pd.read_csv('./data/training.csv')
-test = test.dropna()
-
-test['Image'] = test['Image'].apply(lambda x: np.fromstring(x, dtype=int, sep=' ').reshape((96,96)))
-
-X_test = np.asarray([test['Image']], dtype=np.uint8).reshape(test.shape[0], 96, 96, 1)
-y_test = test.drop(['Image'], axis=1).to_numpy()
 
 model = get_model()
 save_model_each_epoch = keras.callbacks.ModelCheckpoint('./model{epoch:05d}.h5', period=50)
